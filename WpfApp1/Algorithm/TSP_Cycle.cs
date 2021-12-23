@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace WpfApp1.Algorithm
 {
-    internal class TSP
+    internal class TSP_Cycle
     {
         double intInf = 1E300;
         int[] a, xopt;

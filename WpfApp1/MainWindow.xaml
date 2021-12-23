@@ -11,6 +11,7 @@
             <DockPanel>
                 <StackPanel Margin="0,10,0,20" DockPanel.Dock="Bottom">
                     <Button Click="Start_TSP" Margin="2" Name="startBtn">Start</Button>
+                    <Button Click="CheckAllWays" Margin="2">Check All Ways</Button>
                     <Button Click="Import_Data" Margin="2">Import data</Button>
                     <Button Click="Export_Data" Margin="2">Export data</Button>
                     <Button Click="Reset" Margin="2">Reset</Button>

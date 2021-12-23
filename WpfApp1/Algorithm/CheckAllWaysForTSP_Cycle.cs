@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WpfApp1.Algorithm
 {
-    internal class CheckAllWays
+    internal class CheckAllWaysForTSP_Cycle
     {
 		public void Result_Run(double[][] input, int n)
 		{

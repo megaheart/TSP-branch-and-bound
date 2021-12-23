@@ -40,11 +40,10 @@ namespace WpfApp1
             PosLog.ItemsSource = points;
             pointShapes = new List<PointInfo>();
         }
-        private void Canvas_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        private void AddPoint(Point p)
         {
-            Point p = Mouse.GetPosition(this);
-            double x = Math.Round(p.X / 4.5, 6);
-            double y = Math.Round(p.Y / 4.5, 6);
+            double x = Math.Round(p.X, 6);
+            double y = Math.Round(p.Y, 6);
             points.Add(new Point(x, y));
             PointInfo pointInfo = new PointInfo();
             pointInfo.posOnBoard = p;
@@ -72,6 +71,11 @@ namespace WpfApp1
             board.Children.Add(pointInfo.Index);
             pointShapes.Add(pointInfo);
         }
+        private void Canvas_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Point p = Mouse.GetPosition(this);
+            AddPoint(p);
+        }
         private void RemovePoint(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -86,8 +90,45 @@ namespace WpfApp1
                 pointShapes[index].Index.Text = "[" + (index + 1) + "]";
             }
         }
-        string ip = "";
-        HttpClient client = new HttpClient();
+        //string ip = "";
+        //HttpClient client = new HttpClient();
+        private void CheckAllWays(object sender, RoutedEventArgs e)
+        {
+            (sender as Button).IsEnabled = false;
+            double[][] A = new double[points.Count][];
+            for (int i = 0; i < points.Count; i++)
+            {
+                A[i] = new double[points.Count];
+                A[i][i] = double.MaxValue;
+            }
+            for (int i = 0; i < points.Count; i++)
+            {
+                for (int j = i + 1; j < points.Count; j++)
+                {
+                    A[i][j] = A[j][i]
+                        = Math.Round(Math.Sqrt(Math.Pow((points[i].X - points[j].X), 2) + Math.Pow((points[i].Y - points[j].Y), 2)), 6);
+                }
+            }
+            //string message = points.Count.ToString();
+            for (int i = 0; i < points.Count; i++)
+            {
+                for (int j = 0; j < points.Count; j++)
+                {
+                    if (A[i][j] < 1E300)
+                    {
+                        Console.Write("{0,12} ", A[i][j]);
+                    }
+                    else
+                    {
+                        Console.Write("{0,12} ", "∞");
+                    }
+                    //message = " " + A[i][j];
+                }
+                Console.WriteLine();
+                //Console.WriteLine("Sending Data.........................");
+            }
+            new CheckAllWaysForTSP_Road().Result_Run(A, A.Length);
+        }
         private void Start_TSP(object sender, RoutedEventArgs e)
         {
             (sender as Button).IsEnabled = false;
@@ -106,36 +147,37 @@ namespace WpfApp1
                 }
             }
             //string message = points.Count.ToString();
-            //for (int i = 0; i < points.Count; i++)
-            //{
-            //    for (int j = 0; j < points.Count; j++)
-            //    {
-            //        if(A[i][j] < 1E300)
-            //        {
-            //            Console.Write("{0,12} ", A[i][j]);
-            //        }
-            //        else
-            //        {
-            //            Console.Write("{0,12} ", "∞");
-            //        }
-            //        message = " " + A[i][j];
-            //    }
-            //    Console.WriteLine();
-            //    Console.WriteLine("Sending Data.........................");
-            //}
+            for (int i = 0; i < points.Count; i++)
+            {
+                for (int j = 0; j < points.Count; j++)
+                {
+                    if (A[i][j] < 1E300)
+                    {
+                        Console.Write("{0,12} ", A[i][j]);
+                    }
+                    else
+                    {
+                        Console.Write("{0,12} ", "∞");
+                    }
+                    //message = " " + A[i][j];
+                }
+                Console.WriteLine();
+                //Console.WriteLine("Sending Data.........................");
+            }
             //var stringContent = new StringContent(message.ToString());
             //var response = client.PostAsync("192.168.1.13", stringContent).Result;
             //Console.WriteLine("Response: {0}", response.Content.ToString());
             //new CheckAllWays().Result_Run(A, A.Length);
             new Thread(new ThreadStart(() =>
             {
-                int[] tsp_actual = new TSP().TSP_Run(A, A.Length);
+                int[] tsp_actual = new CheckAllWaysForTSP_Road().Result_Run(A, A.Length)[0];
                 board.Dispatcher.Invoke(new Action(() =>
                 {
                     this.Draw(tsp_actual);
                 }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             })).Start();
         }
+        
         private void Draw(int[] tsp_actual)
         {
             Line myLine;
@@ -173,7 +215,7 @@ namespace WpfApp1
             bool? result = dialog.ShowDialog();
             if (result == true)
             {
-                points.Clear();
+                Reset(sender, e);
                 string filename = dialog.FileName;
                 string[] pointsRaw = File.ReadAllText(filename).Trim().Split('\n');
                 foreach (string line in pointsRaw)
@@ -184,7 +226,7 @@ namespace WpfApp1
                     double x, y;
                     if (double.TryParse(pointRaw[0], out x) && double.TryParse(pointRaw[1], out y))
                     {
-                        points.Add(new Point(x, y));
+                        AddPoint(new Point(x, y));
                     }
                 }
             }
