@@ -10,7 +10,7 @@ namespace WpfApp1.Algorithm
     internal class TSP_Cycle
     {
         double intInf = 1E300;
-        int[] a, xopt;
+        int[] a, ax, xopt;
         int N;
         double fopt;
         //double intInf = 1E300;
@@ -28,11 +28,11 @@ namespace WpfApp1.Algorithm
             {
                 if (x[i] >= intInf)
                 {
-                    Console.Write("∞ ");
+                    Console.Write("{0,12} ", "∞");
                 }
                 else
                 {
-                    Console.Write(x[i] + " ");
+                    Console.Write("{0,12:0.000000} ",  x[i]);
                 }
             }
             Console.WriteLine();
@@ -184,6 +184,7 @@ namespace WpfApp1.Algorithm
             if (fopt <= cost) return;
             if (n == 2)
             {
+                //int xxx;
                 if (A[0][0] + A[1][1] >= intInf)
                 {
                     if (A[0][1] + A[1][0] < intInf)
@@ -191,10 +192,11 @@ namespace WpfApp1.Algorithm
                         a[rows[0]] = cols[1];
                         a[rows[1]] = cols[0];
                         ////////////////////////-- Not important code
-                        /*cout << "Last choose: (" << rows[0] + 1 << "; " << cols[1] + 1 << "); ";
-                        cout << "(" << rows[1] + 1 << "; " << cols[0] + 1 << ")" << endl;
-                        cout << "---------------------------------------" << endl;*/
+                        Console.Write("Last choose: (" + (rows[0] + 1) + "; " + (cols[1] + 1) + "); ");
+                        Console.WriteLine("(" + (rows[1] + 1) + "; " + (cols[0] + 1) + ")");
+                        Console.WriteLine("---------------------------------------");
                         /// //////////////////////
+                        
                     }
                     else return;
                 }
@@ -202,20 +204,30 @@ namespace WpfApp1.Algorithm
                 {
                     a[rows[0]] = cols[0];
                     a[rows[1]] = cols[1];
+                    ////////////////////////-- Not important code
+                    Console.Write("Last choose: (" + (rows[0] + 1) + "; " + (cols[0] + 1) + "); ");
+                    Console.WriteLine("(" + (rows[1] + 1) + "; " + (cols[1] + 1) + ")");
+                    Console.WriteLine("---------------------------------------");
+                    /// //////////////////////
                 }
                 else if (A[0][0] + A[1][1] >= A[0][1] + A[1][0])
                 {
                     a[rows[0]] = cols[1];
                     a[rows[1]] = cols[0];
+                    ////////////////////////-- Not important code
+                    Console.Write("Last choose: (" + (rows[0] + 1) + "; " + (cols[1] + 1) + "); ");
+                    Console.WriteLine("(" + (rows[1] + 1) + "; " + (cols[0] + 1) + ")");
+                    Console.WriteLine("---------------------------------------");
+                    /// //////////////////////
                 }
                 else
                 {
                     a[rows[0]] = cols[0];
                     a[rows[1]] = cols[1];
                     ////////////////////////-- Not important code
-                    /*cout << "Last choose: (" << rows[0] + 1 << "; " << cols[0] + 1 << "); ";
-                    cout << "(" << rows[1] + 1 << "; " << cols[1] + 1 << ")" << endl;
-                    cout << "---------------------------------------" << endl;*/
+                    Console.Write("Last choose: (" + (rows[0] + 1) + "; " + (cols[0] + 1) + "); ");
+                    Console.WriteLine("(" + (rows[1] + 1) + "; " + (cols[1] + 1) + ")");
+                    Console.WriteLine("---------------------------------------");
                     /// //////////////////////
                 }
                 for (int i = 0; i < N; i++)
@@ -223,33 +235,86 @@ namespace WpfApp1.Algorithm
                     xopt[i] = a[i];
                 }
                 fopt = cost;
+                a[rows[0]] = -1;
+                a[rows[1]] = -1;
                 return;
             }
             xyBound x = bestEdge(A, n);
+            
             int ri, ci, rx, cx;
             //Left branch k = n - 1
             double[][] NewA = NewArray(A, n, x.x, x.y);
             ri = rows[x.x];
             ci = cols[x.y];
             a[ri] = ci;
+            ax[ci] = ri;
+            
+
             ////////////////////////-- Not important code
-            /*cout << "Rows: ";
-            for (int j = 0; j < n; j++) {
-                cout << rows[j] + 1 << " ";
+            Console.Write("Rows: ");
+            for (int j = 0; j < n; j++)
+            {
+                Console.Write((rows[j] + 1) + " ");
             }
-            cout << endl << "Cols: ";
-            for (int j = 0; j < n; j++) {
-                cout << cols[j] + 1 << " ";
+            Console.WriteLine();
+            Console.Write("Cols: ");
+            for (int j = 0; j < n; j++)
+            {
+                Console.Write((cols[j] + 1) + " ");
             }
-            cout << endl;
-            cout << endl;*/
-            /// //////////////////////
+            Console.WriteLine();
+            Console.WriteLine();
+            /////////////////////////
             rows.RemoveAt(x.x);
             cols.RemoveAt(x.y);
+            /////Ngan chan hanh trinh con
+            /* Giai thuat so 1
+            int ij = ri;
+            while (ij != -1)
+            {
+                int ii = ci;
+                while (ii != -1)
+                {
+                    if (a[ii] != -1 || ax[ij] != -1)
+                    {
+                        ii = a[ii];
+                        continue;
+                    }
+                    rx = cx = -1;
+                    for (int j = 0; j < n - 1; j++)
+                    {
+                        if (cols[j] == ij)
+                        {
+                            cx = j;
+                            break;
+                        }
+                    }
+                    for (int j = 0; j < n - 1; j++)
+                    {
+                        if (rows[j] == ii)
+                        {
+                            rx = j;
+                            break;
+                        }
+                    }
+                    //if (rx > -1 && cx > -1)
+                    //{
+                        NewA[rx][cx] = double.MaxValue;
+                    //}
+                    ii = a[ii];
+                }
+                ij = ax[ij];
+            }
+            */
+            /* Giai thuat so 2 */
+            int ij = ri;
+            int ii = ci;
+            while (ax[ij] != -1) ij = ax[ij];
+            while (a[ii] != -1) ii = a[ii];
             rx = cx = -1;
             for (int j = 0; j < n - 1; j++)
             {
-                if (cols[j] == ri)
+                if (cols[j] == ij)
                 {
                     cx = j;
                     break;
@@ -257,25 +322,28 @@ namespace WpfApp1.Algorithm
             }
             for (int j = 0; j < n - 1; j++)
             {
-                if (rows[j] == ci)
+                if (rows[j] == ii)
                 {
                     rx = j;
                     break;
                 }
             }
-            if (rx > -1 && cx > -1)
-            {
-                NewA[rx][cx] = double.MaxValue;
-            }
+            NewA[rx][cx] = double.MaxValue;
+            //----------------------------
+
+
             ////////////////////////-- Not important code
-            /*for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++)
+            {
                 printBinArr(A[i], n);
             }
-            cout << "Best edge: " << ri + 1 << " - " << ci + 1 << "; ";
-            cout << "Low Bound: " << cost << endl;
-            cout << "---------------------------------------" << endl;*/
+            Console.Write("Best edge: " + (ri + 1) + " - " + (ci + 1) + "; ");
+            Console.WriteLine("Low Bound: " + cost);
+            Console.WriteLine("---------------------------------------");
             /// //////////////////////
             _TSP(n - 1, NewA, cost);
+            a[ri] = -1;
+            ax[ci] = -1;
             //Right branch k = n
             rows.Insert(x.x, ri);
             cols.Insert(x.y, ci);
@@ -288,6 +356,11 @@ namespace WpfApp1.Algorithm
             double[][] A;
             A = new double[n][];
             a = new int[n];
+            ax = new int[n];
+            for(int i = 0; i < n; i++)
+            {
+                a[i] = ax[i] = -1;
+            }
             xopt = new int[n];
             fopt = double.MaxValue;
             for (int i = 0; i < n; i++)

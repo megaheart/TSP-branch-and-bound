@@ -94,6 +94,8 @@ namespace WpfApp1
         //HttpClient client = new HttpClient();
         private void CheckAllWays(object sender, RoutedEventArgs e)
         {
+            return;
+            Console.WriteLine("Checking All Ways.........................");
             (sender as Button).IsEnabled = false;
             double[][] A = new double[points.Count][];
             for (int i = 0; i < points.Count; i++)
@@ -127,10 +129,19 @@ namespace WpfApp1
                 Console.WriteLine();
                 //Console.WriteLine("Sending Data.........................");
             }
-            new CheckAllWaysForTSP_Road().Result_Run(A, A.Length);
+            new Thread(new ThreadStart(() => { 
+                new CheckAllWaysForTSP_Cycle().Result_Run(A, A.Length);
+                (sender as Button).Dispatcher.Invoke(new Action(() =>
+                {
+                    (sender as Button).IsEnabled = true;
+                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                
+            })).Start();
         }
         private void Start_TSP(object sender, RoutedEventArgs e)
         {
+            Console.Clear();
+            Console.WriteLine("Start TSP.........................");
             (sender as Button).IsEnabled = false;
             double[][] A = new double[points.Count][];
             for (int i = 0; i < points.Count; i++)
@@ -170,7 +181,7 @@ namespace WpfApp1
             //new CheckAllWays().Result_Run(A, A.Length);
             new Thread(new ThreadStart(() =>
             {
-                int[] tsp_actual = new CheckAllWaysForTSP_Road().Result_Run(A, A.Length)[0];
+                int[] tsp_actual = new TSP_Cycle().TSP_Run(A, A.Length);
                 board.Dispatcher.Invoke(new Action(() =>
                 {
                     this.Draw(tsp_actual);
